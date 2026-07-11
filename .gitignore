@@ -1,0 +1,8 @@
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary generator files
+make_icons.py

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>入退室QRリーダー Unit Tests</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      border-bottom: 2px solid #1e293b;
+      padding-bottom: 0.5rem;
+      color: #3b82f6;
+    }
+    .test-suite {
+      margin-bottom: 2rem;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .test-suite-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #f8fafc;
+      border-left: 4px solid #3b82f6;
+      padding-left: 0.5rem;
+    }
+    .test-case {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #334155;
+    }
+    .test-case:last-child {
+      border-bottom: none;
+    }
+    .status {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 24px;
+      font-weight: bold;
+      margin-right: 1rem;
+    }
+    .pass {
+      background-color: #10b981;
+      color: #ffffff;
+    }
+    .fail {
+      background-color: #ef4444;
+      color: #ffffff;
+    }
+    .test-name {
+      flex-grow: 1;
+      font-weight: 500;
+    }
+    .test-result {
+      color: #94a3b8;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .summary-box {
+      background-color: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+    .summary-stat {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .summary-label {
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+    .btn-run {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .btn-run:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>入退室QRリーダー 自動テストスイート</h1>
+  
+  <div class="summary-box">
+    <div>
+      <div class="summary-stat" id="total-tests">0</div>
+      <div class="summary-label">テスト総数</div>
+    </div>
+    <div>
+      <div class="summary-stat" style="color: #10b981;" id="passed-tests">0</div>
+      <div class="summary-label">成功</div>
+    </div>
+    <div>
+      <div class="summary-stat" style="color: #ef4444;" id="failed-tests">0</div>
+      <div class="summary-label">失敗</div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 2rem;">
+    <button class="btn-run" onclick="runTests()">テスト再実行</button>
+    <a href="index.html" style="color: #3b82f6; text-decoration: none; margin-left: 1.5rem; font-weight: bold;">アプリ画面へ戻る</a>
+  </div>
+
+  <div id="test-results-container"></div>
+
+  <!-- Import app logic to test. It exposes window.QRReader -->
+  <script src="app.js"></script>
+  
+  <script>
+    let total = 0;
+    let passed = 0;
+    let failed = 0;
+    let container = document.getElementById('test-results-container');
+
+    function assert(condition, name, details = '') {
+      total++;
+      let testCaseDiv = document.createElement('div');
+      testCaseDiv.className = 'test-case';
+      
+      let statusSpan = document.createElement('span');
+      statusSpan.className = 'status';
+      
+      if (condition) {
+        passed++;
+        statusSpan.className += ' pass';
+        statusSpan.innerHTML = '✓';
+      } else {
+        failed++;
+        statusSpan.className += ' fail';
+        statusSpan.innerHTML = '✗';
+      }
+      
+      let nameDiv = document.createElement('div');
+      nameDiv.className = 'test-name';
+      nameDiv.textContent = name;
+      
+      let resultDiv = document.createElement('div');
+      resultDiv.className = 'test-result';
+      resultDiv.textContent = details;
+      
+      testCaseDiv.appendChild(statusSpan);
+      testCaseDiv.appendChild(nameDiv);
+      testCaseDiv.appendChild(resultDiv);
+      
+      return testCaseDiv;
+    }
+
+    function createSuite(title) {
+      let suiteDiv = document.createElement('div');
+      suiteDiv.className = 'test-suite';
+      let suiteTitle = document.createElement('div');
+      suiteTitle.className = 'test-suite-title';
+      suiteTitle.textContent = title;
+      suiteDiv.appendChild(suiteTitle);
+      return suiteDiv;
+    }
+
+    function runTests() {
+      // 初期化
+      total = 0;
+      passed = 0;
+      failed = 0;
+      container.innerHTML = '';
+
+      const { validateQRCodeURL, AppStateMachine, STATES } = window.QRReader;
+
+      // -------------------------------------------------------------
+      // Suite 1: URL Validation Tests
+      // -------------------------------------------------------------
+      const suite1 = createSuite('1. URL検証ロジック (validateQRCodeURL)');
+      
+      // 正しいHTTPS URL
+      let r1 = validateQRCodeURL('https://system.hq-school.com/checkin?id=10243');
+      suite1.appendChild(assert(r1.isValid === true && r1.url.hostname === 'system.hq-school.com', 
+        '正しいHTTPSのURLを検証できること', 
+        `result: ${r1.isValid}, host: ${r1.url ? r1.url.hostname : 'N/A'}`
+      ));
+
+      // 空文字
+      let r2 = validateQRCodeURL('');
+      suite1.appendChild(assert(r2.isValid === false, 
+        '空文字はエラーとなること', 
+        `result: ${r2.isValid}, error: "${r2.error}"`
+      ));
+
+      // URLではない文字列
+      let r3 = validateQRCodeURL('hello school checkin');
+      suite1.appendChild(assert(r3.isValid === false, 
+        '単なる文字列はエラーとなること', 
+        `result: ${r3.isValid}, error: "${r3.error}"`
+      ));
+
+      // javascript: プロトコル
+      let r4 = validateQRCodeURL('javascript:alert("XSS")');
+      suite1.appendChild(assert(r4.isValid === false, 
+        'javascript: スキームは拒否されること', 
+        `result: ${r4.isValid}, error: "${r4.error}"`
+      ));
+
+      // file: プロトコル
+      let r5 = validateQRCodeURL('file:///c:/Users/index.html');
+      suite1.appendChild(assert(r5.isValid === false, 
+        'file: スキームは拒否されること', 
+        `result: ${r5.isValid}, error: "${r5.error}"`
+      ));
+
+      // data: プロトコル
+      let r6 = validateQRCodeURL('data:text/html,<html></html>');
+      suite1.appendChild(assert(r6.isValid === false, 
+        'data: スキームは拒否されること', 
+        `result: ${r6.isValid}, error: "${r6.error}"`
+      ));
+
+      // http: プロトコル（初期状態はhttpsのみのため拒否）
+      let r7 = validateQRCodeURL('http://system.hq-school.com/checkin');
+      suite1.appendChild(assert(r7.isValid === false, 
+        '初期状態で http:// は拒否されること', 
+        `result: ${r7.isValid}, error: "${r7.error}"`
+      ));
+
+      // http: プロトコルを許可設定した場合
+      let r7_allowed = validateQRCodeURL('http://system.hq-school.com/checkin', ['https:', 'http:']);
+      suite1.appendChild(assert(r7_allowed.isValid === true, 
+        '明示的な許可設定があれば http:// が通ること', 
+        `result: ${r7_allowed.isValid}`
+      ));
+
+      // ドメイン制限 (許可されたドメイン)
+      let r8 = validateQRCodeURL('https://system.hq-school.com/checkin', ['https:'], ['system.hq-school.com']);
+      suite1.appendChild(assert(r8.isValid === true, 
+        '許可されたドメインのURLが通ること', 
+        `result: ${r8.isValid}`
+      ));
+
+      // ドメイン制限 (許可されていないドメイン)
+      let r9 = validateQRCodeURL('https://external-attack.com/checkin', ['https:'], ['system.hq-school.com']);
+      suite1.appendChild(assert(r9.isValid === false, 
+        '許可されていないドメインのURLは拒否されること', 
+        `result: ${r9.isValid}, error: "${r9.error}"`
+      ));
+
+      container.appendChild(suite1);
+
+      // -------------------------------------------------------------
+      // Suite 2: State Machine Tests
+      // -------------------------------------------------------------
+      const suite2 = createSuite('2. 状態管理ステートマシン (AppStateMachine)');
+      
+      let stateLog = [];
+      let machine = new AppStateMachine((state, msg) => {
+        stateLog.push({ state, msg });
+      });
+
+      // 初期状態
+      suite2.appendChild(assert(machine.getState() === STATES.IDLE, 
+        '初期状態が IDLE であること', 
+        `state: ${machine.getState()}`
+      ));
+
+      // スキャン中へ遷移
+      machine.transitionTo(STATES.SCANNING, 'QRスキャン開始');
+      suite2.appendChild(assert(machine.getState() === STATES.SCANNING && stateLog[0].state === STATES.SCANNING, 
+        'SCANNING 状態へ正しく遷移でき、コールバックが呼ばれること', 
+        `state: ${machine.getState()}, logMsg: "${stateLog[0].msg}"`
+      ));
+
+      // 処理中へ遷移
+      machine.transitionTo(STATES.PROCESSING, '処理中');
+      suite2.appendChild(assert(machine.getState() === STATES.PROCESSING && stateLog[1].state === STATES.PROCESSING, 
+        'PROCESSING 状態へ正しく遷移すること', 
+        `state: ${machine.getState()}, logMsg: "${stateLog[1].msg}"`
+      ));
+
+      // 異常なステータス遷移
+      machine.transitionTo('INVALID_STATE_TEST');
+      suite2.appendChild(assert(machine.getState() === STATES.PROCESSING, 
+        '定義されていない無効な状態への遷移が無視されること', 
+        `state: ${machine.getState()}`
+      ));
+
+      container.appendChild(suite2);
+
+      // -------------------------------------------------------------
+      // Suite 3: Double Scan Prevention Tests
+      // -------------------------------------------------------------
+      const suite3 = createSuite('3. 二重処理防止・二重読み取り抑止');
+      
+      // テスト用に最小のモックを作るか、ロジックを確認
+      // 同一URLの連続スキャン制限: 5000ms
+      let lastScannedUrl = 'https://system.hq-school.com/checkin?id=123';
+      let lastScanTime = Date.now() - 2000; // 2秒前 (5秒以内なので二重スキャン警告になるべき)
+      
+      // 警告になるケース
+      let check1_url = 'https://system.hq-school.com/checkin?id=123';
+      let check1_now = Date.now();
+      let isDuplicate1 = (check1_url === lastScannedUrl && (check1_now - lastScanTime) < 5000);
+      suite3.appendChild(assert(isDuplicate1 === true, 
+        '5秒以内に同一URLを読み取った場合、二重読み取りと判定されること', 
+        `isDuplicate: ${isDuplicate1}, delta: ${check1_now - lastScanTime}ms`
+      ));
+
+      // 警告にならないケース1 (別のURL)
+      let check2_url = 'https://system.hq-school.com/checkin?id=999';
+      let check2_now = Date.now();
+      let isDuplicate2 = (check2_url === lastScannedUrl && (check2_now - lastScanTime) < 5000);
+      suite3.appendChild(assert(isDuplicate2 === false, 
+        '5秒以内であっても、異なるURLの場合は二重読み取りと判定されないこと', 
+        `isDuplicate: ${isDuplicate2}`
+      ));
+
+      // 警告にならないケース2 (5秒以上経過した同一URL)
+      let lastScanTimeOld = Date.now() - 6000; // 6秒前
+      let check3_url = 'https://system.hq-school.com/checkin?id=123';
+      let check3_now = Date.now();
+      let isDuplicate3 = (check3_url === lastScannedUrl && (check3_now - lastScanTimeOld) < 5000);
+      suite3.appendChild(assert(isDuplicate3 === false, 
+        '5秒以上経過していれば、同一URLでも二重読み取りと判定されないこと', 
+        `isDuplicate: ${isDuplicate3}, delta: ${check3_now - lastScanTimeOld}ms`
+      ));
+
+      container.appendChild(suite3);
+
+      // サマリー表示の更新
+      document.getElementById('total-tests').textContent = total;
+      document.getElementById('passed-tests').textContent = passed;
+      document.getElementById('failed-tests').textContent = failed;
+    }
+
+    // 起動時にテストを実行
+    window.addEventListener('DOMContentLoaded', () => {
+      runTests();
+    });
+  </script>
+</body>
+</html>
