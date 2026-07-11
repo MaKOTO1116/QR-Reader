@@ -264,8 +264,7 @@ class QRReaderApp {
       errorText: document.getElementById('error-text'),
       iframe: document.getElementById('process-iframe'),
       overlay: document.querySelector('.scanner-overlay'),
-      placeholder: document.querySelector('.camera-placeholder'),
-      cameraSelect: document.getElementById('camera-select')
+      placeholder: document.querySelector('.camera-placeholder')
     };
 
     // イベントリスナー設定
@@ -274,9 +273,6 @@ class QRReaderApp {
     }
     if (this.elements.btnReset) {
       this.elements.btnReset.addEventListener('click', () => this.resetToScanning());
-    }
-    if (this.elements.cameraSelect) {
-      this.elements.cameraSelect.addEventListener('change', () => this.onCameraChanged());
     }
 
     // iframe loadイベントの設定
@@ -401,14 +397,13 @@ class QRReaderApp {
 
     logDebug('Starting camera...');
     
-    // カメラの制約設定 (選択されたデバイスIDがあればそれを使用、無ければ背面優先)
-    const selectedDeviceId = this.elements.cameraSelect ? this.elements.cameraSelect.value : '';
-    const videoConstraints = selectedDeviceId
-      ? { deviceId: { exact: selectedDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
-      : { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } };
-
+    // カメラの制約設定 (インカメラ/フロントカメラ優先)
     const constraints = {
-      video: videoConstraints,
+      video: {
+        facingMode: { ideal: 'user' },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
       audio: false
     };
 
@@ -428,9 +423,6 @@ class QRReaderApp {
 
       this.stateMachine.transitionTo(STATES.SCANNING, 'QRコードをかざしてください');
       
-      // カメラの選択肢を最新化
-      await this.updateCameraList();
-
       // スキャンループ開始
       this.startScanLoop();
 
@@ -449,75 +441,6 @@ class QRReaderApp {
 
       this.sound.playError();
       this.stateMachine.transitionTo(STATES.ERROR, 'カメラを起動できません', `${errorMsg} (${detail})`);
-    }
-  }
-
-  // 利用可能なカメラ一覧の取得とセレクトボックス更新
-  async updateCameraList() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-      logDebug('enumerateDevices is not supported.');
-      return;
-    }
-
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      const select = this.elements.cameraSelect;
-      
-      if (!select) return;
-
-      const currentSelected = select.value;
-      select.innerHTML = '';
-      
-      // デフォルト選択肢を追加
-      const defaultOpt = document.createElement('option');
-      defaultOpt.value = '';
-      defaultOpt.textContent = 'デフォルト (背面優先)';
-      select.appendChild(defaultOpt);
-
-      // カメラを選択肢に登録
-      videoDevices.forEach((device, index) => {
-        const option = document.createElement('option');
-        option.value = device.deviceId;
-        option.textContent = device.label || `カメラ ${index + 1}`;
-        select.appendChild(option);
-      });
-
-      // 以前の選択状態を復元、または現在アクティブなトラックのデバイスを選択
-      if (currentSelected && [...select.options].some(opt => opt.value === currentSelected)) {
-        select.value = currentSelected;
-      } else if (this.stream) {
-        const activeTrack = this.stream.getVideoTracks()[0];
-        if (activeTrack) {
-          const settings = activeTrack.getSettings();
-          if (settings && settings.deviceId) {
-            select.value = settings.deviceId;
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('Failed to enumerate video devices:', err);
-    }
-  }
-
-  // カメラが切り替えられた時のイベントハンドラ
-  async onCameraChanged() {
-    const currentState = this.stateMachine.getState();
-    // スキャン中の場合のみ、現在のストリームを止めて即座に再起動
-    if (currentState === STATES.SCANNING) {
-      logDebug('Camera select changed, restarting stream...');
-      if (this.scanAnimationId) {
-        cancelAnimationFrame(this.scanAnimationId);
-        this.scanAnimationId = null;
-      }
-      if (this.stream) {
-        this.stream.getTracks().forEach(track => track.stop());
-        this.stream = null;
-      }
-      
-      // startCameraを通過させるために一時的に状態をIDLEにする
-      this.stateMachine.state = STATES.IDLE;
-      await this.startCamera();
     }
   }
 

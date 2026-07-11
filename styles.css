@@ -1,27 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap');
 
-/* --- Design Tokens --- */
+/* --- Design Tokens (清潔感のある配色 - クリーンライトテーマ) --- */
 :root {
   --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   
-  /* Color Palettes */
-  --bg-dark: #0b0f19;
-  --bg-card: rgba(20, 26, 46, 0.6);
-  --bg-card-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
+  /* Color Palettes (Bright & Clean) */
+  --bg-main: #f8fafc;
+  --bg-gradient-end: #eff6ff;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-border: rgba(226, 232, 240, 0.8);
+  --text-primary: #0f172a;       /* Slate 900 */
+  --text-secondary: #475569;     /* Slate 600 */
+  --text-light: #64748b;         /* Slate 500 */
   
   /* State Colors */
   --color-idle: #64748b;        /* Slate */
-  --color-scanning: #3b82f6;    /* Vibrant Blue */
-  --color-processing: #f59e0b;  /* Warm Amber */
-  --color-success: #10b981;     /* Emerald Green */
-  --color-error: #ef4444;       /* Rose Red */
-  --color-warning: #ec4899;     /* Pink */
+  --color-scanning: #2563eb;    /* Vibrant Royal Blue */
+  --color-processing: #d97706;  /* Golden Amber */
+  --color-success: #059669;     /* Fresh Emerald Green */
+  --color-error: #e11d48;       /* Clean Rose Red */
+  --color-warning: #db2777;     /* Dark Pink */
 
   /* Active theme color, default is idle */
   --theme-color: var(--color-idle);
-  --theme-color-glow: rgba(100, 116, 139, 0.15);
+  --theme-color-glow: rgba(100, 116, 139, 0.08);
   
   /* Animation speeds */
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -38,7 +40,7 @@
 
 body {
   font-family: var(--font-family);
-  background-color: var(--bg-dark);
+  background-color: var(--bg-main);
   color: var(--text-primary);
   min-height: 100dvh;
   display: flex;
@@ -46,7 +48,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  overflow: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
@@ -59,17 +61,18 @@ body::before {
   width: 120%;
   height: 120%;
   background: 
-    radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
-  z-index: -1;
+    radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(217, 119, 6, 0.03) 0%, transparent 50%),
+    linear-gradient(135deg, var(--bg-main) 0%, var(--bg-gradient-end) 100%);
+  z-index: -2;
   pointer-events: none;
 }
 
 /* --- Container App Layout --- */
 .app-container {
   width: 100%;
-  max-width: 600px;
+  max-width: 540px;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
@@ -97,24 +100,22 @@ header h1 {
   font-size: 2.2rem;
   font-weight: 700;
   letter-spacing: -0.025em;
-  background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
 /* --- State Panel --- */
 .state-panel {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--bg-card-border);
   border-radius: 20px;
   padding: 1.2rem;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
   transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
-  border-left: 5px solid var(--theme-color);
+  border-left: 6px solid var(--theme-color);
 }
 
 .state-title {
@@ -123,6 +124,7 @@ header h1 {
   letter-spacing: 0.1em;
   color: var(--text-secondary);
   margin-bottom: 0.4rem;
+  font-weight: 500;
 }
 
 .state-message {
@@ -137,10 +139,10 @@ header h1 {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background-color: #020617;
+  background-color: #f1f5f9;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 0 40px var(--theme-color-glow), inset 0 0 20px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 30px var(--theme-color-glow), 0 0 0 1px var(--bg-card-border);
   border: 2px solid var(--theme-color);
   transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
 }
@@ -170,9 +172,9 @@ header h1 {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  color: var(--text-secondary);
+  color: var(--text-light);
   z-index: 2;
-  background-color: #070a13;
+  background-color: #f8fafc;
   transition: opacity var(--transition-normal);
 }
 
@@ -180,7 +182,7 @@ header h1 {
   width: 64px;
   height: 64px;
   fill: currentColor;
-  opacity: 0.4;
+  opacity: 0.35;
 }
 
 .camera-placeholder p {
@@ -212,12 +214,12 @@ header h1 {
 .scanner-frame {
   width: 60%;
   aspect-ratio: 1 / 1;
-  max-width: 280px;
-  max-height: 280px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  max-width: 260px;
+  max-height: 260px;
+  border: 2px solid rgba(15, 23, 42, 0.15);
   position: relative;
-  box-shadow: 0 0 0 2000px rgba(7, 10, 19, 0.6); /* Dim surrounding area */
-  border-radius: 16px;
+  box-shadow: 0 0 0 2000px rgba(248, 250, 252, 0.45); /* Soft dim surrounding area */
+  border-radius: 20px;
 }
 
 /* Frame corner hooks */
@@ -239,7 +241,7 @@ header h1 {
   top: -2px;
   left: -2px;
   border-width: 4px 0 0 4px;
-  border-top-left-radius: 12px;
+  border-top-left-radius: 14px;
 }
 
 /* Top-Right */
@@ -247,7 +249,7 @@ header h1 {
   top: -2px;
   right: -2px;
   border-width: 4px 4px 0 0;
-  border-top-right-radius: 12px;
+  border-top-right-radius: 14px;
 }
 
 /* Bottom-Left */
@@ -255,7 +257,7 @@ header h1 {
   bottom: -2px;
   left: -2px;
   border-width: 0 0 4px 4px;
-  border-bottom-left-radius: 12px;
+  border-bottom-left-radius: 14px;
 }
 
 /* Bottom-Right */
@@ -263,7 +265,7 @@ header h1 {
   bottom: -2px;
   right: -2px;
   border-width: 0 4px 4px 0;
-  border-bottom-right-radius: 12px;
+  border-bottom-right-radius: 14px;
 }
 
 /* Animated scanner line */
@@ -274,8 +276,8 @@ header h1 {
   width: 100%;
   height: 3px;
   background: linear-gradient(90deg, transparent, var(--theme-color), transparent);
-  animation: scan 2s linear infinite;
-  box-shadow: 0 0 8px var(--theme-color);
+  animation: scan 2.2s linear infinite;
+  box-shadow: 0 0 6px var(--theme-color);
   transition: background var(--transition-normal), box-shadow var(--transition-normal);
 }
 
@@ -283,47 +285,6 @@ header h1 {
   0% { top: 0%; }
   50% { top: 100%; }
   100% { top: 0%; }
-}
-
-/* --- Camera Selection Dropdown --- */
-.camera-select-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin-bottom: 0.8rem;
-  width: 100%;
-}
-
-.camera-select-container label {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.select-input {
-  width: 100%;
-  font-family: var(--font-family);
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 0.8rem 1rem;
-  border-radius: 12px;
-  background-color: rgba(20, 26, 46, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: var(--text-primary);
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1.5rem;
-  cursor: pointer;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.select-input:focus {
-  outline: none;
-  border-color: var(--color-scanning);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
 /* --- Control Buttons --- */
@@ -335,9 +296,9 @@ header h1 {
 .btn {
   flex: 1;
   font-family: var(--font-family);
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  padding: 1.1rem 1.5rem;
+  padding: 1rem 1.5rem;
   border: none;
   border-radius: 16px;
   cursor: pointer;
@@ -357,50 +318,51 @@ header h1 {
 .btn-primary {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   color: white;
-  box-shadow: 0 4px 15px rgba(29, 79, 216, 0.35);
+  box-shadow: 0 4px 15px rgba(29, 79, 216, 0.2);
 }
 
 .btn-primary:active {
   transform: scale(0.97);
-  box-shadow: 0 2px 6px rgba(29, 79, 216, 0.2);
+  box-shadow: 0 2px 6px rgba(29, 79, 216, 0.1);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.08);
+  background: #ffffff;
   color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 .btn-secondary:active {
   transform: scale(0.97);
-  background: rgba(255, 255, 255, 0.12);
+  background: #f8fafc;
 }
 
 /* Hover effects (only active on non-touch devices) */
 @media (hover: hover) {
   .btn-primary:hover {
-    background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+    transform: translateY(-1px);
   }
   .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.15);
+    transform: translateY(-1px);
   }
 }
 
 /* Disable primary btn during scanning */
 .btn-primary.disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
 }
 
 /* --- Error Logger --- */
 .error-panel {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(225, 29, 72, 0.05);
+  border: 1px solid rgba(225, 29, 72, 0.15);
   border-radius: 16px;
   padding: 1rem;
   display: none; /* Hidden by default */
@@ -429,13 +391,13 @@ header h1 {
 
 .error-text {
   font-size: 0.9rem;
-  color: #fca5a5;
+  color: #9f1239;
   line-height: 1.4;
   word-break: break-all;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -455,7 +417,7 @@ header h1 {
 /* --- Settings / Metadata display footer --- */
 footer {
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--text-light);
   font-size: 0.8rem;
   margin-top: 0.5rem;
 }
@@ -464,27 +426,23 @@ footer p {
   margin-bottom: 0.2rem;
 }
 
-footer a {
-  color: var(--color-scanning);
-  text-decoration: none;
-}
-
-footer a:hover {
-  text-decoration: underline;
-}
-
-/* --- Large screen layout adjustments (e.g. iPad landscape) --- */
-@media (min-width: 768px) and (orientation: landscape) {
+/* --- 横置き（Landscape）運用最適化レイアウト --- */
+@media (orientation: landscape) {
   body {
-    padding: 2rem;
+    padding: 1rem 1.5rem;
+    justify-content: center;
+    height: 100dvh;
+    overflow: hidden;
   }
+  
   .app-container {
-    max-width: 900px;
+    max-width: 960px;
+    height: 100%;
     display: grid;
     grid-template-columns: 1.2fr 1fr;
-    grid-template-rows: auto 1fr auto;
-    gap: 1.5rem;
-    align-items: start;
+    grid-template-rows: auto 1fr;
+    gap: 1rem;
+    align-items: center;
   }
   
   header {
@@ -493,10 +451,21 @@ footer a:hover {
     margin-bottom: 0;
   }
   
+  header h1 {
+    font-size: 1.8rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+    padding-bottom: 0.4rem;
+  }
+  
+  /* ビューファインダーの高さを画面サイズに合わせる (スクロール抑止) */
   .viewfinder-container {
     grid-column: 1;
     grid-row: 2;
+    height: 68dvh;
+    width: auto;
     aspect-ratio: 4 / 3;
+    margin: 0 auto;
+    box-shadow: 0 4px 20px var(--theme-color-glow);
   }
   
   .right-column {
@@ -504,18 +473,33 @@ footer a:hover {
     grid-row: 2;
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
-    height: 100%;
-    justify-content: flex-start;
+    gap: 0.8rem;
+    height: 68dvh;
+    justify-content: center;
+  }
+  
+  .state-panel {
+    padding: 1rem;
+  }
+  
+  .state-message {
+    font-size: 1.3rem;
+  }
+
+  .error-panel {
+    padding: 0.8rem;
   }
   
   .controls-container {
-    margin-top: auto; /* Push buttons to the bottom of column */
+    margin-top: auto; /* 下部にボタンを固定 */
+  }
+  
+  .btn {
+    padding: 0.9rem 1.2rem;
+    font-size: 1.1rem;
   }
   
   footer {
-    grid-column: 1 / span 2;
-    text-align: center;
-    margin-top: 1rem;
+    display: none; /* 高さが限られているため横置きではフッターを非表示にする */
   }
 }
