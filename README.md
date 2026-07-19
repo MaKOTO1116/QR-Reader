@@ -76,7 +76,7 @@ const CONFIG = {
   TIMEOUT_DURATION: 15000,       // iframe読み込みタイムアウト時間（ミリ秒）
   COOLDOWN_DURATION: 5000,       // 同一URLの再受付禁止時間（ミリ秒）
   ALLOWED_PROTOCOLS: ['https:'], // 許可するプロトコル（初期状態はhttps:のみ）
-  ALLOWED_HOSTS: [],             // 許可ドメイン（ドメイン制限を行う場合に指定）
+  ALLOWED_HOSTS: ['user.edmondo.jp'], // 許可ドメイン（ドメイン制限を行う場合に指定）
   
   // 状態表示自動復帰のウェイト時間
   SUCCESS_RESET_DELAY: 3000,
@@ -84,16 +84,16 @@ const CONFIG = {
   DUPLICATE_RESET_DELAY: 3000,
   
   DEBUG: false,                  // デバッグログ出力フラグ
-  AUDIO_VOLUME: 0.3              // 完了音・警告音の音量 (0.0 〜 1.0)
+  AUDIO_VOLUME: 0.6              // 完了音・警告音の音量 (0.0 〜 1.0)
 };
 ```
 
 ### ドメイン制限の設定例
 第三者の不適切なURLが読み取られた際、iframeで読み込まないようにセキュリティ保護を行うことができます。
 
-**例：`system.hq-school.com` のみ接続を許可する場合**
+**例：`user.edmondo.jp` のみ接続を許可する場合**
 ```javascript
-ALLOWED_HOSTS: ['system.hq-school.com'],
+ALLOWED_HOSTS: ['user.edmondo.jp'],
 ```
 *空配列 `[]` の場合は、`ALLOWED_PROTOCOLS`（初期状態では `https:`）に合致するすべてのドメインへのアクセスを許可します。*
 

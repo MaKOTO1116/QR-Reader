@@ -4,10 +4,9 @@
 
 // --- 設定定数 ---
 const CONFIG = {
-  TIMEOUT_DURATION: 15000,       // iframe読み込みタイムアウト(ミリ秒)
   COOLDOWN_DURATION: 5000,       // 同一URLの再受付禁止時間(ミリ秒)
   ALLOWED_PROTOCOLS: ['https:'], // 許可するプロトコル (初期状態は https: のみ)
-  ALLOWED_HOSTS: [],             // 許可ドメイン (空配列の場合は全ドメイン許可)
+  ALLOWED_HOSTS: ['user.edmondo.jp'],             // 許可ドメイン (空配列の場合は全ドメイン許可)
   
   // 状態表示自動復帰のウェイト時間
   SUCCESS_RESET_DELAY: 3000,
@@ -15,7 +14,7 @@ const CONFIG = {
   DUPLICATE_RESET_DELAY: 3000,
   
   DEBUG: false,                  // デバッグログ出力フラグ
-  AUDIO_VOLUME: 0.3              // 完了音・警告音の音量 (0.0 〜 1.0)
+  AUDIO_VOLUME: 0.6              // 完了音・警告音の音量 (0.0 〜 1.0)
 };
 
 // --- アプリケーションの状態定義 ---
@@ -264,7 +263,8 @@ class QRReaderApp {
       errorText: document.getElementById('error-text'),
       iframe: document.getElementById('process-iframe'),
       overlay: document.querySelector('.scanner-overlay'),
-      placeholder: document.querySelector('.camera-placeholder')
+      placeholder: document.querySelector('.camera-placeholder'),
+      successOverlay: document.getElementById('success-overlay')
     };
 
     // イベントリスナー設定
@@ -273,6 +273,10 @@ class QRReaderApp {
     }
     if (this.elements.btnReset) {
       this.elements.btnReset.addEventListener('click', () => this.resetToScanning());
+    }
+    const btnErrorDismiss = document.getElementById('btn-error-dismiss');
+    if (btnErrorDismiss) {
+      btnErrorDismiss.addEventListener('click', () => this.resetToScanning());
     }
 
     // iframe loadイベントの設定
@@ -305,12 +309,31 @@ class QRReaderApp {
       }
     }
 
+    // フローティングリセットボタンの表示制御
+    if (this.elements.btnReset) {
+      if (state === STATES.PROCESSING || state === STATES.SUCCESS || state === STATES.IDLE) {
+        this.elements.btnReset.style.opacity = '0';
+        this.elements.btnReset.style.pointerEvents = 'none';
+      } else {
+        this.elements.btnReset.style.opacity = '0.7';
+        this.elements.btnReset.style.pointerEvents = 'auto';
+      }
+    }
+
     // スキャンインジケーター（オーバーレイ）の表示制御
     if (this.elements.overlay) {
-      if (state === STATES.SCANNING) {
+      if (state === STATES.SCANNING || state === STATES.PROCESSING) {
         this.elements.overlay.classList.add('active');
       } else {
         this.elements.overlay.classList.remove('active');
+      }
+    }
+
+    if (this.elements.successOverlay) {
+      if (state === STATES.SUCCESS) {
+        this.elements.successOverlay.classList.add('active');
+      } else {
+        this.elements.successOverlay.classList.remove('active');
       }
     }
 
@@ -318,10 +341,9 @@ class QRReaderApp {
     if (this.elements.errorPanel && this.elements.errorText) {
       if (state === STATES.ERROR && errorDetail) {
         this.elements.errorText.textContent = errorDetail;
-        this.elements.errorPanel.classList.add('visible');
+        this.elements.errorPanel.classList.add('active');
       } else if (state !== STATES.ERROR) {
-        // エラー状態から抜ける時はエラーログをクリアしないが、非表示にする
-        this.elements.errorPanel.classList.remove('visible');
+        this.elements.errorPanel.classList.remove('active');
       }
     }
 
@@ -330,9 +352,11 @@ class QRReaderApp {
       if (state === STATES.IDLE) {
         this.elements.placeholder.style.opacity = '1';
         this.elements.placeholder.style.pointerEvents = 'auto';
+        this.elements.placeholder.style.transform = 'scale(1)';
       } else {
         this.elements.placeholder.style.opacity = '0';
         this.elements.placeholder.style.pointerEvents = 'none';
+        this.elements.placeholder.style.transform = 'scale(0.95)';
       }
     }
   }
@@ -546,20 +570,6 @@ class QRReaderApp {
       return;
     }
 
-    // 以前のタイムアウトがあればクリア
-    if (this.iframeTimeoutId) {
-      clearTimeout(this.iframeTimeoutId);
-    }
-
-    // タイムアウト監視を開始
-    this.iframeTimeoutId = setTimeout(() => {
-      logDebug('Iframe loading timeout:', url);
-      this.clearIframe();
-      this.sound.playError();
-      this.stateMachine.transitionTo(STATES.ERROR, '通信タイムアウト', `本部サーバーの応答がありませんでした(制限時間: ${CONFIG.TIMEOUT_DURATION / 1000}秒)`);
-      this.autoResetToScanning(CONFIG.ERROR_RESET_DELAY);
-    }, CONFIG.TIMEOUT_DURATION);
-
     // URLをiframeへ設定してロード開始
     logDebug('Loading URL in hidden iframe:', url);
     this.elements.iframe.src = url;
@@ -573,12 +583,6 @@ class QRReaderApp {
     }
 
     logDebug('Iframe loaded successfully.');
-
-    // タイムアウト監視をクリア
-    if (this.iframeTimeoutId) {
-      clearTimeout(this.iframeTimeoutId);
-      this.iframeTimeoutId = null;
-    }
 
     // 1. 完了音を鳴らす
     this.sound.playSuccess();

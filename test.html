@@ -194,8 +194,8 @@
       const suite1 = createSuite('1. URL検証ロジック (validateQRCodeURL)');
       
       // 正しいHTTPS URL
-      let r1 = validateQRCodeURL('https://system.hq-school.com/checkin?id=10243');
-      suite1.appendChild(assert(r1.isValid === true && r1.url.hostname === 'system.hq-school.com', 
+      let r1 = validateQRCodeURL('https://user.edmondo.jp/checkin?id=10243');
+      suite1.appendChild(assert(r1.isValid === true && r1.url.hostname === 'user.edmondo.jp', 
         '正しいHTTPSのURLを検証できること', 
         `result: ${r1.isValid}, host: ${r1.url ? r1.url.hostname : 'N/A'}`
       ));
@@ -236,14 +236,14 @@
       ));
 
       // http: プロトコル（初期状態はhttpsのみのため拒否）
-      let r7 = validateQRCodeURL('http://system.hq-school.com/checkin');
+      let r7 = validateQRCodeURL('http://user.edmondo.jp/checkin');
       suite1.appendChild(assert(r7.isValid === false, 
         '初期状態で http:// は拒否されること', 
         `result: ${r7.isValid}, error: "${r7.error}"`
       ));
 
       // http: プロトコルを許可設定した場合
-      let r7_allowed = validateQRCodeURL('http://system.hq-school.com/checkin', ['https:', 'http:']);
+      let r7_allowed = validateQRCodeURL('http://user.edmondo.jp/checkin', ['https:', 'http:']);
       suite1.appendChild(assert(r7_allowed.isValid === true, 
         '明示的な許可設定があれば http:// が通ること', 
         `result: ${r7_allowed.isValid}`
@@ -305,17 +305,18 @@
       container.appendChild(suite2);
 
       // -------------------------------------------------------------
+      // -------------------------------------------------------------
       // Suite 3: Double Scan Prevention Tests
       // -------------------------------------------------------------
       const suite3 = createSuite('3. 二重処理防止・二重読み取り抑止');
       
       // テスト用に最小のモックを作るか、ロジックを確認
       // 同一URLの連続スキャン制限: 5000ms
-      let lastScannedUrl = 'https://system.hq-school.com/checkin?id=123';
+      let lastScannedUrl = 'https://user.edmondo.jp/checkin?id=123';
       let lastScanTime = Date.now() - 2000; // 2秒前 (5秒以内なので二重スキャン警告になるべき)
       
       // 警告になるケース
-      let check1_url = 'https://system.hq-school.com/checkin?id=123';
+      let check1_url = 'https://user.edmondo.jp/checkin?id=123';
       let check1_now = Date.now();
       let isDuplicate1 = (check1_url === lastScannedUrl && (check1_now - lastScanTime) < 5000);
       suite3.appendChild(assert(isDuplicate1 === true, 
@@ -324,7 +325,7 @@
       ));
 
       // 警告にならないケース1 (別のURL)
-      let check2_url = 'https://system.hq-school.com/checkin?id=999';
+      let check2_url = 'https://user.edmondo.jp/checkin?id=999';
       let check2_now = Date.now();
       let isDuplicate2 = (check2_url === lastScannedUrl && (check2_now - lastScanTime) < 5000);
       suite3.appendChild(assert(isDuplicate2 === false, 
@@ -334,7 +335,7 @@
 
       // 警告にならないケース2 (5秒以上経過した同一URL)
       let lastScanTimeOld = Date.now() - 6000; // 6秒前
-      let check3_url = 'https://system.hq-school.com/checkin?id=123';
+      let check3_url = 'https://user.edmondo.jp/checkin?id=123';
       let check3_now = Date.now();
       let isDuplicate3 = (check3_url === lastScannedUrl && (check3_now - lastScanTimeOld) < 5000);
       suite3.appendChild(assert(isDuplicate3 === false, 

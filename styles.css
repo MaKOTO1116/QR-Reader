@@ -72,7 +72,7 @@ body::before {
 /* --- Container App Layout --- */
 .app-container {
   width: 100%;
-  max-width: 540px;
+  max-width: 680px;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
@@ -104,34 +104,86 @@ header h1 {
   margin-bottom: 0.25rem;
 }
 
-/* --- State Panel --- */
-.state-panel {
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--bg-card-border);
-  border-radius: 20px;
-  padding: 1.2rem;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
-  border-left: 6px solid var(--theme-color);
+/* --- Floating Status Bar --- */
+.floating-status-bar {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  transition: background var(--transition-normal);
 }
 
-.state-title {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-secondary);
-  margin-bottom: 0.4rem;
-  font-weight: 500;
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--theme-color);
+  box-shadow: 0 0 8px var(--theme-color);
+  animation: pulse-glow 1.5s infinite;
 }
 
-.state-message {
-  font-size: 1.4rem;
+@keyframes pulse-glow {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 12px var(--theme-color); }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+#state-message {
+  font-size: 0.95rem;
   font-weight: 700;
-  color: var(--theme-color);
-  transition: color var(--transition-normal);
+  color: #ffffff;
+}
+
+/* --- Floating Reset/Reload Button --- */
+.floating-reset-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast), opacity var(--transition-normal);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  opacity: 0.7;
+}
+
+.floating-reset-btn:hover {
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  transform: rotate(45deg);
+  opacity: 1;
+}
+
+.floating-reset-btn:active {
+  transform: rotate(45deg) scale(0.92);
+}
+
+.floating-reset-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 
 /* --- Viewfinder (Camera Frame) --- */
@@ -171,23 +223,54 @@ header h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem;
   color: var(--text-light);
-  z-index: 2;
-  background-color: #f8fafc;
-  transition: opacity var(--transition-normal);
+  z-index: 4; /* Higher than video, lower than success overlay */
+  background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.placeholder-icon-wrapper {
+  width: 90px;
+  height: 90px;
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.05);
+  animation: pulse-avatar 2s infinite ease-in-out;
+}
+
+@keyframes pulse-avatar {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.15); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
 
 .camera-placeholder svg {
-  width: 64px;
-  height: 64px;
-  fill: currentColor;
-  opacity: 0.35;
+  width: 44px;
+  height: 44px;
+  fill: #3b82f6;
 }
 
-.camera-placeholder p {
-  font-size: 1.1rem;
-  font-weight: 500;
+.camera-placeholder p.placeholder-tagline {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-top: -0.5rem;
+}
+
+/* Pulsing Start Button overlay style */
+.camera-placeholder button {
+  animation: start-pulse 2s infinite ease-in-out;
+}
+
+@keyframes start-pulse {
+  0% { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25); }
+  50% { box-shadow: 0 4px 25px rgba(37, 99, 235, 0.55); }
+  100% { box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25); }
 }
 
 /* Scanner target box overlay */
@@ -359,41 +442,170 @@ header h1 {
   pointer-events: none;
 }
 
-/* --- Error Logger --- */
-.error-panel {
-  background: rgba(225, 29, 72, 0.05);
-  border: 1px solid rgba(225, 29, 72, 0.15);
-  border-radius: 16px;
-  padding: 1rem;
-  display: none; /* Hidden by default */
-  animation: fadeIn 0.3s ease;
+/* --- Viewfinder Full Overlays (Success, Processing, Error) --- */
+.viewfinder-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  transform: scale(1.05);
 }
 
-.error-panel.visible {
+.viewfinder-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+
+
+/* --- Success Overlay Style --- */
+.success-overlay {
+  background: rgba(5, 150, 105, 0.95);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  color: #ffffff;
+}
+
+.success-overlay h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  letter-spacing: -0.01em;
+  animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.success-overlay p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 0.5rem;
+  animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Animated Success Checkmark (Highly Premium) --- */
+.checkmark-wrapper {
+  width: 100px;
+  height: 100px;
   display: block;
+  margin: 0 auto;
 }
 
-.error-header {
+.checkmark-svg {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 3;
+  stroke: #ffffff;
+  stroke-miterlimit: 10;
+  box-shadow: inset 0px 0px 0px #ffffff;
+  animation: fill-green .4s ease-in-out .4s forwards, scale-checkmark .3s ease-in-out .9s both;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+  stroke: rgba(255, 255, 255, 0.5);
+  fill: none;
+  animation: stroke-circle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 4;
+  stroke-linecap: round;
+  animation: stroke-check 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke-circle {
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes stroke-check {
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes scale-checkmark {
+  0%, 100% { transform: none; }
+  50% { transform: scale3d(1.15, 1.15, 1); }
+}
+
+@keyframes fill-green {
+  100% { box-shadow: inset 0px 0px 0px 50px rgba(255, 255, 255, 0.15); }
+}
+
+/* --- Error Overlay Style --- */
+.error-overlay {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #ffffff;
+}
+
+.error-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  background: rgba(225, 29, 72, 0.15);
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
   color: var(--color-error);
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  font-size: 0.95rem;
+  border: 1px solid rgba(225, 29, 72, 0.25);
+  animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
 }
 
-.error-header svg {
-  width: 20px;
-  height: 20px;
+.error-icon-wrapper svg {
+  width: 36px;
+  height: 36px;
   fill: currentColor;
 }
 
-.error-text {
-  font-size: 0.9rem;
-  color: #9f1239;
-  line-height: 1.4;
+.error-overlay h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-error);
+  margin-top: 1.2rem;
+}
+
+.error-overlay .error-text {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.6rem;
+  max-width: 85%;
+  line-height: 1.5;
   word-break: break-all;
+}
+
+.error-overlay button {
+  margin-top: 1.5rem;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
 @keyframes fadeIn {
@@ -414,18 +626,6 @@ header h1 {
   border: none;
 }
 
-/* --- Settings / Metadata display footer --- */
-footer {
-  text-align: center;
-  color: var(--text-light);
-  font-size: 0.8rem;
-  margin-top: 0.5rem;
-}
-
-footer p {
-  margin-bottom: 0.2rem;
-}
-
 /* --- 横置き（Landscape）運用最適化レイアウト --- */
 @media (orientation: landscape) {
   body {
@@ -436,70 +636,33 @@ footer p {
   }
   
   .app-container {
-    max-width: 960px;
+    max-width: 900px;
     height: 100%;
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
     align-items: center;
+    justify-content: center;
   }
   
   header {
-    grid-column: 1 / span 2;
-    text-align: left;
+    width: 100%;
+    text-align: center;
     margin-bottom: 0;
   }
   
   header h1 {
     font-size: 1.8rem;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
-    padding-bottom: 0.4rem;
+    border-bottom: none;
+    padding-bottom: 0.2rem;
   }
   
   /* ビューファインダーの高さを画面サイズに合わせる (スクロール抑止) */
   .viewfinder-container {
-    grid-column: 1;
-    grid-row: 2;
-    height: 68dvh;
+    height: 72dvh;
     width: auto;
     aspect-ratio: 4 / 3;
     margin: 0 auto;
     box-shadow: 0 4px 20px var(--theme-color-glow);
-  }
-  
-  .right-column {
-    grid-column: 2;
-    grid-row: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    height: 68dvh;
-    justify-content: center;
-  }
-  
-  .state-panel {
-    padding: 1rem;
-  }
-  
-  .state-message {
-    font-size: 1.3rem;
-  }
-
-  .error-panel {
-    padding: 0.8rem;
-  }
-  
-  .controls-container {
-    margin-top: auto; /* 下部にボタンを固定 */
-  }
-  
-  .btn {
-    padding: 0.9rem 1.2rem;
-    font-size: 1.1rem;
-  }
-  
-  footer {
-    display: none; /* 高さが限られているため横置きではフッターを非表示にする */
   }
 }

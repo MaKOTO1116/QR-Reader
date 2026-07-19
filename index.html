@@ -28,13 +28,7 @@
       <h1>入退室受付</h1>
     </header>
 
-    <!-- State Indicator Panel -->
-    <section class="state-panel" id="state-panel">
-      <div class="state-title">現在のステータス</div>
-      <div class="state-message" id="state-message">カメラを開始してください</div>
-    </section>
-
-    <!-- Camera Viewfinder Section -->
+    <!-- Unified Viewfinder & Scanner Frame -->
     <section class="viewfinder-container">
       
       <!-- Video stream -->
@@ -43,12 +37,33 @@
       <!-- Hidden canvas for image analysis -->
       <canvas id="qr-canvas"></canvas>
       
-      <!-- Camera placeholder/splash -->
-      <div class="camera-placeholder">
+      <!-- Floating Status Bar Overlay -->
+      <div class="floating-status-bar" id="state-panel">
+        <div class="pulse-indicator"></div>
+        <span id="state-message">カメラを開始してください</span>
+      </div>
+
+      <!-- Floating Reset/Reload Action Button -->
+      <button class="floating-reset-btn" id="btn-reset" title="スキャンを再起動">
         <svg viewBox="0 0 24 24">
-          <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6c0-1.1.9-2 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
+          <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
         </svg>
-        <p>カメラ開始ボタンを押してください</p>
+      </button>
+      
+      <!-- Camera placeholder/splash overlay -->
+      <div class="camera-placeholder">
+        <div class="placeholder-icon-wrapper">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6c0-1.1.9-2 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
+          </svg>
+        </div>
+        <p class="placeholder-tagline">塾・スクール入退室管理</p>
+        <button class="btn btn-primary" id="btn-start">
+          <svg viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          カメラを開始する
+        </button>
       </div>
 
       <!-- Scanning Box Overlay -->
@@ -59,45 +74,35 @@
         </div>
       </div>
 
-    </section>
 
-    <div class="right-column">
-      <!-- Error Log Panel -->
-      <section class="error-panel" id="error-panel">
-        <div class="error-header">
+      <!-- Success State Overlay (Checkmark animation) -->
+      <div class="viewfinder-overlay success-overlay" id="success-overlay">
+        <div class="checkmark-wrapper">
+          <svg class="checkmark-svg" viewBox="0 0 52 52">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+          </svg>
+        </div>
+        <h2>受付が完了しました</h2>
+        <p>確認音をご確認ください</p>
+      </div>
+
+      <!-- Error State Overlay -->
+      <div class="viewfinder-overlay error-overlay" id="error-panel">
+        <div class="error-icon-wrapper">
           <svg viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
           </svg>
-          <span>エラー詳細</span>
         </div>
-        <div class="error-text" id="error-text">エラーが発生しました</div>
-      </section>
+        <h2>読み取りエラー</h2>
+        <p class="error-text" id="error-text">エラーが発生しました</p>
+        <button class="btn btn-secondary" id="btn-error-dismiss">スキャンを再開する</button>
+      </div>
 
-      <!-- Operation Buttons -->
-      <section class="controls-container">
-        <button class="btn btn-primary" id="btn-start">
-          <svg viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
-          カメラ開始
-        </button>
-        <button class="btn btn-secondary" id="btn-reset">
-          <svg viewBox="0 0 24 24">
-            <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-          </svg>
-          再読み込み
-        </button>
-      </section>
-    </div>
+    </section>
 
     <!-- Hidden Processing Frame -->
     <iframe id="process-iframe" src="about:blank"></iframe>
-
-    <!-- App Information Footer -->
-    <footer>
-      <p>入退室QRリーダー v1.0.0</p>
-      <p>※ 本部システムへのログイン完了後、カメラを開始してください。</p>
-    </footer>
 
   </div>
 
