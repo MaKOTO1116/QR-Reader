@@ -377,7 +377,6 @@ header h1 {
 }
 
 .btn {
-  flex: 1;
   font-family: var(--font-family);
   font-size: 1.15rem;
   font-weight: 700;
@@ -629,15 +628,17 @@ header h1 {
 /* --- 横置き（Landscape）運用最適化レイアウト --- */
 @media (orientation: landscape) {
   body {
-    padding: 1rem 1.5rem;
+    padding: 1.5rem;
     justify-content: center;
+    align-items: center;
     height: 100dvh;
     overflow: hidden;
   }
   
   .app-container {
-    max-width: 900px;
-    height: 100%;
+    width: 100%;
+    max-width: min(900px, 85vw, calc(70dvh * 4 / 3));
+    height: auto;
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
@@ -657,10 +658,10 @@ header h1 {
     padding-bottom: 0.2rem;
   }
   
-  /* ビューファインダーの高さを画面サイズに合わせる (スクロール抑止) */
+  /* ビューファインダーサイズは app-container に従う (縦横比維持しつつ画面内に収める) */
   .viewfinder-container {
-    height: 72dvh;
-    width: auto;
+    width: 100%;
+    height: auto;
     aspect-ratio: 4 / 3;
     margin: 0 auto;
     box-shadow: 0 4px 20px var(--theme-color-glow);
