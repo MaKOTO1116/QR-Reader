@@ -58,12 +58,7 @@
           </svg>
         </div>
         <p class="placeholder-tagline">塾・スクール入退室管理</p>
-        <button class="btn btn-primary" id="btn-start">
-          <svg viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
-          カメラを開始する
-        </button>
+        <!-- 開始ボタンは下のコントロール領域に移動しました -->
       </div>
 
       <!-- Scanning Box Overlay -->
@@ -100,6 +95,22 @@
       </div>
 
     </section>
+
+    <!-- Control Buttons -->
+    <div class="controls-container" style="justify-content: center; margin-top: 0.5rem;">
+      <button class="btn btn-primary" id="btn-start">
+        <svg viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        読み取り開始
+      </button>
+      <button class="btn btn-secondary disabled" id="btn-stop" disabled>
+        <svg viewBox="0 0 24 24">
+          <path d="M6 6h12v12H6z"/>
+        </svg>
+        終了
+      </button>
+    </div>
 
     <!-- Hidden Processing Frame -->
     <iframe id="process-iframe" src="about:blank"></iframe>

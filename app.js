@@ -258,6 +258,7 @@ class QRReaderApp {
       stateMessage: document.getElementById('state-message'),
       statePanel: document.getElementById('state-panel'),
       btnStart: document.getElementById('btn-start'),
+      btnStop: document.getElementById('btn-stop'),
       btnReset: document.getElementById('btn-reset'),
       errorPanel: document.getElementById('error-panel'),
       errorText: document.getElementById('error-text'),
@@ -270,6 +271,9 @@ class QRReaderApp {
     // イベントリスナー設定
     if (this.elements.btnStart) {
       this.elements.btnStart.addEventListener('click', () => this.startCamera());
+    }
+    if (this.elements.btnStop) {
+      this.elements.btnStop.addEventListener('click', () => this.stopCamera());
     }
     if (this.elements.btnReset) {
       this.elements.btnReset.addEventListener('click', () => this.resetToScanning());
@@ -306,6 +310,15 @@ class QRReaderApp {
       } else {
         this.elements.btnStart.classList.add('disabled');
         this.elements.btnStart.setAttribute('disabled', 'true');
+      }
+    }
+    if (this.elements.btnStop) {
+      if (state !== STATES.IDLE) {
+        this.elements.btnStop.classList.remove('disabled');
+        this.elements.btnStop.removeAttribute('disabled');
+      } else {
+        this.elements.btnStop.classList.add('disabled');
+        this.elements.btnStop.setAttribute('disabled', 'true');
       }
     }
 
